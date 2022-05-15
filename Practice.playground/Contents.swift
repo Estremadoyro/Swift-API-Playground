@@ -496,6 +496,52 @@ struct SomeStruct {
 let randomStruct = SomeStruct()
 randomStruct.show()
 
+// MARK: - Atomic Properties (Property Wrapper)
+
+print("-- Atomic Properties --")
+
+@propertyWrapper
+struct Atomic<Value> {
+  private var value: Value
+  private let lock = NSLock()
+  var wrappedValue: Value {
+    get { return load() }
+    set { store(newValue: newValue) }
+  }
+
+  init(wrappedValue value: Value) {
+    self.value = value
+  }
+
+  private func load() -> Value {
+    // Attempts to acquire a Lock, blocking the Thread until doing so
+    lock.lock()
+    // Gives up on the lock before exiting the function
+    defer { lock.unlock() }
+    return value
+  }
+
+  private mutating func store(newValue: Value) {
+    print("New value: \(value)")
+    // Attempts to acquire a Lock, blocking the Thread until doing so
+    lock.lock()
+    // Gives up on the lock before exiting the function
+    defer { lock.unlock() }
+    value = newValue
+  }
+}
+
+struct AtomicStruct {
+  // Can be safely access by multiple threads
+  @Atomic var counter: Int = 1
+  func show() {
+    print("Atomic wrapped property: \(counter)")
+  }
+}
+
+let atomicStruct = AtomicStruct()
+atomicStruct.show()
+
 // MARK: - Rappi Challenge
 
 // Minimum number of players
