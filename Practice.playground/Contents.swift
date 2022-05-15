@@ -402,6 +402,100 @@ func sequenceTransformations() {
 
 sequenceTransformations()
 
+// MARK: - Optional Type
+
+let x: String? = Optional("Hello world")
+let x1: String? = "Hello mars"
+
+if let y = x {
+  print(y)
+}
+
+enum NewOptional<Wrapped> {
+//  case none
+  case some(Wrapped)
+  init(_ some: Wrapped) {
+    self = .some(some)
+  }
+}
+
+func implementNewOptional<T>(value: T) -> T {
+  let y: NewOptional<T> = .init(value)
+  switch y {
+//    case .none:
+//      return T.self
+    case .some(let value):
+      return value
+  }
+}
+
+print(implementNewOptional(value: "Wakandaaa"))
+
+// MARK: - Attributes
+
+@discardableResult // Disable warning for not using the output value
+@available(iOS 10.0, macOS 10.12, *) // Availability for certain platform&versions
+func unusedstatement() -> Int { return 1 }
+
+// MARK: - Property Wrapper
+
+@propertyWrapper
+struct SomeWrapper {
+  // { get; } value when set
+  var wrappedValue: Int
+  var projectedValue: SomeProjection {
+    return SomeProjection(wrapper: self)
+  }
+
+  var someValue: Double
+
+  init() {
+    self.wrappedValue = 100
+    self.someValue = 12.3
+  }
+
+  init(wrappedValue: Int) {
+    self.someValue = 45.6
+    self.wrappedValue = wrappedValue
+  }
+
+  init(wrappedValue value: Int, custom: Double) {
+    self.wrappedValue = value
+    self.someValue = custom
+  }
+}
+
+struct SomeProjection {
+  var wrapper: SomeWrapper
+  var customValue: Int
+
+  init(wrapper: SomeWrapper) {
+    self.wrapper = wrapper
+    self.customValue = 100 * self.wrapper.wrappedValue
+  }
+}
+
+struct SomeStruct {
+  // Uses init()
+  @SomeWrapper var a: Int
+
+  // Uses init(wrappedValue:) aka .init() with 1 parameter
+  @SomeWrapper var b: Int = 10
+
+  // Both use init(wrappedValue:custom:)
+  @SomeWrapper(custom: 98.7) var c = 30
+
+  @SomeWrapper(wrappedValue: 30, custom: 98.7) var d
+
+  func show() {
+    print("wrapper value: \(d)")
+    print("wrapper value: \($d.customValue)")
+  }
+}
+
+let randomStruct = SomeStruct()
+randomStruct.show()
+
 // MARK: - Rappi Challenge
 
 // Minimum number of players
