@@ -3,6 +3,8 @@ import UIKit
 // Person   -/-/- > Passport
 // Passport - - -> Person
 
+// MARK: - Retain Cycles
+
 print("-- Retain Cycle --")
 class Person {
   weak var passport: Passport?
@@ -29,7 +31,8 @@ person = nil
 
 // print("End")
 
-/// # Indirect enums (indirect enum)
+// MARK: - Indirect enums (indirect enum)
+
 print("-- Indirect Enums (indirect) --")
 indirect enum LinkedListItem<T> {
   case endPoint(value: T)
@@ -53,7 +56,8 @@ listLoop: while true {
   }
 }
 
-/// # Autoclosure (@autoclosure () -> String)
+// MARK: - Autoclosure (@autoclosure () -> String)
+
 // Doesn't take arguments
 // Lets delay evaluation of the closure, its content doesn't get executed until told so
 print("-- Autoclosure --")
@@ -78,7 +82,8 @@ func serve(customer customerProvider: @autoclosure () -> String) {
 
 serve(customer: customersInLine.remove(at: 0))
 
-/// # Dispatch Queues
+// MARK: - Dispatch Queues
+
 // Execute and ends in order (FIFO)
 /// # Serial Dispatch Queue
 print("-- Serial DispatchQueue --")
@@ -185,6 +190,8 @@ func evenNumbers(in collection: [Int]) -> Result<[Int], EvenNumberError> {
   let evenNumbers = collection.filter { $0 % 2 == 0 }
   return .success(evenNumbers)
 }
+
+// MARK: - Sequence Transformations
 
 let numbers = [2, 5, 8, 12, 16, 23]
 // print(evenNumbers(in: [Int]()))
