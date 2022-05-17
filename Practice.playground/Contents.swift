@@ -705,6 +705,38 @@ testShortWaitRides { waitTime, rides in
   rides.filter { $0.waitTime < waitTime }
 }
 
+// MARK: - Deadlock
+
+// let queueDead = DispatchQueue(label: "my-queue")
+//// 1.
+// queueDead.sync {
+//  print("print this")
+//  // The second closure can't run until the 1. completes
+//  queueDead.sync {
+//    print("deadlocked")
+//  }
+// }
+
+// let waiter = DispatchQueue(label: "waiter")
+// let chef = DispatchQueue(label: "chef")
+//
+//// 1. synchronously order the soup
+// waiter.sync {
+//  print("Waiter: hi chef, please make me 1 soup")
+//
+//  // 2. synchronously prepare the soup
+//  // Chef's work will never finish, as waiter's work will never start for waiting for the original task 1. to finish.
+//  chef.sync {
+//    print("Chef: Ok, but ask the customer what soup he wants")
+//
+//    // 3. synchronously ask for clarification
+//    waiter.sync {
+//      print("Waiter: Sure!")
+//      print("Waiter: Hello customer, what soupd did you want again?")
+//    }
+//  }
+// }
+
 // MARK: - Atomic Properties (Property Wrapper)
 
 print("-- Atomic Properties --")
@@ -748,8 +780,32 @@ struct AtomicStruct {
   }
 }
 
+@propertyWrapper
+struct NewAtomic<Value> {
+  private let queue = DispatchQueue(label: "random.queue")
+  private var value: Value
+
+  var wrappedValue: Value {
+    get { return queue.sync { value } }
+    set { value = newValue }
+  }
+
+  init(wrappedValue: Value) {
+    self.value = wrappedValue
+  }
+}
+
+struct NewAtomicStruct {
+  // wrappedValue: 0
+  @NewAtomic var x = 0
+}
+
 let atomicStruct = AtomicStruct()
 atomicStruct.show()
+
+var newAtomicStruct = NewAtomicStruct()
+newAtomicStruct.x = 1
+print("new atomic value: \(newAtomicStruct.x)")
 
 // MARK: - Rappi Challenge
 
